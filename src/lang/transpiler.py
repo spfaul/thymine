@@ -3,6 +3,7 @@ from typing import List
 from inspect import cleandoc
 import textwrap
 import itertools
+from yattag import indent
 
 class ThymineToHTMLTranspiler:
     def __init__(self):
@@ -41,7 +42,7 @@ class ThymineToHTMLTranspiler:
                     body += f"\n<quote-block>{text}</quote-block>\n"
 
                 elif tok.type == TokenType.StringText and tok.parent == None:
-                    body += f"{tok.value}"
+                    body += f"<text>{tok.value}</text>"
 
 
         # TODO: make the identation not ugly
@@ -56,14 +57,14 @@ class ThymineToHTMLTranspiler:
         return template
 
     def _prettify_html(self, text: str):
-        prettified_text: str = ""
-        text = cleandoc(text)
-        for line in text.split("\n"):
-            if line.strip() == "":
-                continue
-            prettified_text += line + "\n"
-
-        return prettified_text
+        # prettified_text: str = ""
+        # text = cleandoc(text)
+        # for line in text.split("\n"):
+        #     if line.strip() == "":
+        #         continue
+        #     prettified_text += line + "\n"
+        # return prettified_text
+        return indent(text, indentation=" "*4, newline="\n", indent_text=True)
 
     def _collect_metadata(self, tokens):
         md: List[Token] = self._filter_metadata(tokens)
