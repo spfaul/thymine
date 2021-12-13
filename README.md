@@ -9,9 +9,8 @@ Yet another static blog generator, featuring its own custom markdown-inspired la
 ## Features
 - [ ] Complete markdown port into thymine language
 - [ ] Build and deploy system
-- [ ] Use CSS to make the websites look decent
-- [ ] Config files
-- [x] Template files
+- [x] Use CSS to make the websites look decent
+- [x] Template files and configs
 
 ## Quick Start (requires [python 3.8+](https://www.python.org/))
 > Thymine doesn't even have a working alpha yet...
