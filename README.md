@@ -11,6 +11,7 @@ Yet another static blog generator, featuring its own custom markdown-inspired la
 - [ ] Build and deploy system
 - [x] Use CSS to make the websites look decent
 - [x] Template files and configs
+- [ ] CLI
 
 ## Quick Start (requires [python 3.8+](https://www.python.org/))
 > Thymine doesn't even have a working alpha yet...

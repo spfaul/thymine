@@ -32,6 +32,9 @@ class ThymineToHTMLTranspiler:
                     for md_tok in metadata_tokens:
                         md_tok.parent = tok
 
+                elif tok.type == TokenType.MetadataAssignment and tok.parent == None:
+                    body += f"<text>{tok.value}</text>"
+
                 elif tok.type == TokenType.QuoteBlock:
                     if idx == len(line) - 1:
                         text = ""
@@ -40,6 +43,13 @@ class ThymineToHTMLTranspiler:
                         text_tok.parent = tok
                         text = text_tok.value
                     body += f"\n<quote-block>{text}</quote-block>\n"
+
+                elif tok.type == TokenType.BulletPoint:
+                    assert idx != len(line) - 1, "Empty BulletPoint!"
+                    text_tok = line[idx + 1]
+                    assert text_tok.type == TokenType.StringText, "BulletPoint has no text token!"
+                    text_tok.parent = tok
+                    body += f"<bullet-point>{text_tok.value}</bullet-point>"
 
                 elif tok.type == TokenType.StringText and tok.parent == None:
                     body += f"<text>{tok.value}</text>"

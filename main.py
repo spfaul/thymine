@@ -1,4 +1,5 @@
 import os
+from pprint import pprint
 from src.lang import ThymineInterpreter
 from src.template import Template, get_templates
 
@@ -15,6 +16,8 @@ def main():
 
     intpr: ThymineInterpreter = ThymineInterpreter()
     intpr.feed_file("tests/test.tym", template.get_output_path(INPUT_PATH), template.get_main_template_path())
+
+
 
 
 if __name__ == '__main__':
