@@ -5,6 +5,11 @@ AUTHOR: Person
 
 # This is some text!
 ## This is some subtext!
+
 This is a des:cription!
+
 > This is a quoteblock!
-- This is a bulletpoint!
+
+o Bulletpoint 1!
+	o Bulletpoint 2!
+		o Bulletpoint 3!

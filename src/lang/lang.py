@@ -49,9 +49,11 @@ class ThymineInterpreter:
                 line_toks.append(Token(TokenType.Header, header.group(0)))
                 line = line.replace(header.group(0), "", 1)
 
-            if line.strip().startswith("-"):
-                line_toks.append(Token(TokenType.BulletPoint, "-"))
-                line = line.replace("-", "", 1)
+
+            elif line.strip().startswith("o"): # Bullet points
+                tok: Token = Token(TokenType.BulletPoint, "o", level=len(line.split("o")[0])+1)
+                line_toks.append(tok)
+                line = line.replace("o", "", 1)
 
             tok = Token(TokenType.StringText, "")
             for idx, char in enumerate(line):

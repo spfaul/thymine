@@ -13,9 +13,15 @@ class ThymineToHTMLTranspiler:
         body: str = ""
         metadata_loaded: bool = False
         metadata: dict[str, str] = {}
+        bulletpoint_level: int = 0
+        bulletpoint_start: bool = False
 
         for line_num, line in enumerate(tokens):
             for idx, tok in enumerate(line):
+                if bulletpoint_start and tok.parent == None and tok.type != TokenType.BulletPoint:
+                    bulletpoint_start = False
+                    body += "</ul>" * bulletpoint_level
+
                 if tok.type == TokenType.Header:
                     assert idx != len(line) - 1, "Empty Header!"
                     head_text_tok: str = line[idx + 1]
@@ -23,7 +29,7 @@ class ThymineToHTMLTranspiler:
                     head_text_tok.parent = tok
                     head_level: int = tok.value.count("#")
 
-                    body += f"\n<h{head_level}>{head_text_tok.value}</h{head_level}>\n"
+                    body += f"<h{head_level}>{head_text_tok.value}</h{head_level}>"
 
                 elif tok.type == TokenType.MetadataTag and not metadata_loaded:
                     metadata, metadata_tokens = self._collect_metadata(tokens[line_num+1:])
@@ -42,17 +48,28 @@ class ThymineToHTMLTranspiler:
                         text_tok = line[idx + 1]
                         text_tok.parent = tok
                         text = text_tok.value
-                    body += f"\n<quote-block>{text}</quote-block>\n"
+                    body += f"<quote-block>{text}</quote-block>"
 
                 elif tok.type == TokenType.BulletPoint:
                     assert idx != len(line) - 1, "Empty BulletPoint!"
                     text_tok = line[idx + 1]
                     assert text_tok.type == TokenType.StringText, "BulletPoint has no text token!"
                     text_tok.parent = tok
-                    body += f"<bullet-point>{text_tok.value}</bullet-point>"
+
+                    if not bulletpoint_start:
+                        bulletpoint_start = True
+                        body += "<ul>" * tok.level
+                    elif tok.level > bulletpoint_level:
+                        body += "<ul>" * (tok.level - bulletpoint_level)
+                    else:
+                        body += "</ul>" * (bulletpoint_level - tok.level)
+                    
+                    bulletpoint_level = tok.level
+                    body += f"<li>{text_tok.value}</li>"
 
                 elif tok.type == TokenType.StringText and tok.parent == None:
                     body += f"<text>{tok.value}</text>"
+
 
 
         # TODO: make the identation not ugly

@@ -12,15 +12,10 @@ class TokenType(Enum):
 
 
 class Token:
-    def __init__(self, token_type, value, parent=None, attrs=None, **kwargs):
+    def __init__(self, token_type, value, parent=None, **kwargs):
         self.type: TokenType = token_type
         self.value: str = value
         self.parent: Union[Token, None] = parent
-
-        if attrs == None:
-            self.attrs = []
-        else:
-            self.attrs = attrs
 
         for key, val in kwargs.items():
             setattr(self, key, val)
