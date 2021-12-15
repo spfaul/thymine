@@ -8,7 +8,9 @@ class TokenType(Enum):
     StringText = auto(),
     Header = auto(),
     QuoteBlock = auto(),
-    BulletPoint = auto()
+    BulletPoint = auto(),
+    InlineCode = auto(),
+    LineBreak = auto()
 
 
 class Token:
@@ -21,4 +23,4 @@ class Token:
             setattr(self, key, val)
 
     def __repr__(self):
-        return f"<Token type={self.type} value={self.value} parent={self.parent} attrs={self.attrs}>"
+        return f"<Token type={self.type} value={self.value} parent={self.parent}>"

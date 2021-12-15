@@ -1,31 +1,49 @@
-quote-block {
-	/*white-space: pre-line;*/
-	margin: 0.5em;
-	padding: 0.1em;
-	padding-left: 0.5em;
-	color:  #665c54;
-	border-left: 0.25em solid #504945;
-}
-
-li {
-	display: list-item;
-  margin: 0em;
-}
-
-text {
-	margin: 0.5em;
+body {
+	background-color: #282828;
+	font-family: Ubuntu;
+	font-size: 16px;
+	color: #ebdbb2;
 }
 
 .thymine-container {
-	display: flex;
-	flex-direction: column;
+	/*display: flex;*/
+	/*flex-direction: column;*/
 	align-items: left;
 	justify-content:  space-around;
 	margin: 5em;
 }
 
-body {
-	background-color: #282828;
-	font-family: Ubuntu;
-	color: #ebdbb2;
+quote-block {
+  display: block;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	padding-left: 1em;
+	color:  #665c54;
+	border-left: 0.25em solid #504945;
+
+}
+
+li {
+	margin-top:  .5em;
+	margin-bottom:  .5em;
+}
+
+code {
+	background-color: #3c3836;
+	padding: 0.2em 0.4em;
+	font-size: 85%;
+	border-radius: 6px;
+}
+
+ul {
+	margin:  0;
+}
+
+text {
+	margin-top:  1em;
+	margin-bottom:  1em;
+}
+
+h1 {
+	color: #fbf1c7;
 }

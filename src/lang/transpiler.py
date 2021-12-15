@@ -7,20 +7,23 @@ from yattag import indent
 
 class ThymineToHTMLTranspiler:
     def __init__(self):
-        pass
+        self.tokens: List[List[Token]] = []
 
     def tokens_to_html(self, tokens: List[List[Token]], template: str) -> str:
+        self.tokens = tokens
         body: str = ""
         metadata_loaded: bool = False
         metadata: dict[str, str] = {}
         bulletpoint_level: int = 0
         bulletpoint_start: bool = False
 
-        for line_num, line in enumerate(tokens):
+        for line_num, line in enumerate(self.tokens):
             for idx, tok in enumerate(line):
-                if bulletpoint_start and tok.parent == None and tok.type != TokenType.BulletPoint:
-                    bulletpoint_start = False
-                    body += "</ul>" * bulletpoint_level
+                # close bulletpoint ul tags (god no)
+                if bulletpoint_start:
+                    if (not tok.parent and tok.type != TokenType.BulletPoint) or (self._is_last_token(tok) and tok.parent and tok.parent.type == TokenType.BulletPoint):
+                        bulletpoint_start = False
+                        body += "</ul>" * bulletpoint_level
 
                 if tok.type == TokenType.Header:
                     assert idx != len(line) - 1, "Empty Header!"
@@ -31,17 +34,17 @@ class ThymineToHTMLTranspiler:
 
                     body += f"<h{head_level}>{head_text_tok.value}</h{head_level}>"
 
-                elif tok.type == TokenType.MetadataTag and not metadata_loaded:
-                    metadata, metadata_tokens = self._collect_metadata(tokens[line_num+1:])
+                if tok.type == TokenType.MetadataTag and not metadata_loaded:
+                    metadata, metadata_tokens = self._collect_metadata(self.tokens[line_num+1:])
                     metadata_loaded = True
 
                     for md_tok in metadata_tokens:
                         md_tok.parent = tok
 
-                elif tok.type == TokenType.MetadataAssignment and tok.parent == None:
+                if tok.type == TokenType.MetadataAssignment and tok.parent == None:
                     body += f"<text>{tok.value}</text>"
 
-                elif tok.type == TokenType.QuoteBlock:
+                if tok.type == TokenType.QuoteBlock:
                     if idx == len(line) - 1:
                         text = ""
                     else:
@@ -50,7 +53,7 @@ class ThymineToHTMLTranspiler:
                         text = text_tok.value
                     body += f"<quote-block>{text}</quote-block>"
 
-                elif tok.type == TokenType.BulletPoint:
+                if tok.type == TokenType.BulletPoint:
                     assert idx != len(line) - 1, "Empty BulletPoint!"
                     text_tok = line[idx + 1]
                     assert text_tok.type == TokenType.StringText, "BulletPoint has no text token!"
@@ -61,21 +64,39 @@ class ThymineToHTMLTranspiler:
                         body += "<ul>" * tok.level
                     elif tok.level > bulletpoint_level:
                         body += "<ul>" * (tok.level - bulletpoint_level)
-                    else:
+                    elif tok.level < bulletpoint_level:
                         body += "</ul>" * (bulletpoint_level - tok.level)
                     
                     bulletpoint_level = tok.level
                     body += f"<li>{text_tok.value}</li>"
 
-                elif tok.type == TokenType.StringText and tok.parent == None:
+                if tok.type == TokenType.InlineCode and not tok.parent:
+                    code_text: str = ""
+                    found_closing: bool = False
+
+                    for tmp_next_tok in line[idx+1:]:
+                        if tmp_next_tok.type == TokenType.InlineCode and not tmp_next_tok.parent:
+                            found_closing = True
+
+                    if found_closing:
+                        for next_tok_idx, next_tok in enumerate(line[idx+1:]):
+                            next_tok.parent = tok
+                            if next_tok.type == TokenType.InlineCode:
+                                break 
+                            code_text += next_tok.value
+                        body += f"<code>{code_text}</code>"
+
+                if tok.type == TokenType.LineBreak:
+                    body += f"<br>"
+
+                if tok.type == TokenType.StringText and tok.parent == None:
                     body += f"<text>{tok.value}</text>"
 
-
-
-        # TODO: make the identation not ugly
         final_html: str = self._format_template(template, metadata, body)
-
         return self._prettify_html(final_html)
+
+    def _is_last_token(self, token: Token):
+        return self.tokens[-1][-1] == token
 
     def _format_template(self, template: str, metadata: dict, body: str):
         template = template.replace("$THYMINE_BODY", body) #TODO: proper indentation
@@ -91,7 +112,7 @@ class ThymineToHTMLTranspiler:
         #         continue
         #     prettified_text += line + "\n"
         # return prettified_text
-        return indent(text, indentation=" "*4, newline="\n", indent_text=True)
+        return indent(text, indentation=" "*4, newline="\n", indent_text=False)
 
     def _collect_metadata(self, tokens):
         md: List[Token] = self._filter_metadata(tokens)

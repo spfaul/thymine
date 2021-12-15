@@ -11,6 +11,7 @@ class ThymineInterpreter:
     def feed(self, text: str, output_path: str, template: str):
         """ Parse thymine-lang input """
         tokens = ThymineInterpreter.tokenize(text)
+        pprint(tokens)
 
         html_str = self.tpiler.tokens_to_html(tokens, template)
         with open(output_path, 'w') as file:
@@ -29,6 +30,10 @@ class ThymineInterpreter:
 
         for line in text.split("\n"):
             line_toks: list[Token] = []
+
+            # Empty Lines
+            if line.strip() == "":
+                tokens.append([Token(TokenType.LineBreak, "\n")])
 
             # Find tokens at the start of the line (no iteration needed)
             if line.strip() == "-":  # Metadata Tags
@@ -51,7 +56,8 @@ class ThymineInterpreter:
 
 
             elif line.strip().startswith("o"): # Bullet points
-                tok: Token = Token(TokenType.BulletPoint, "o", level=len(line.split("o")[0])+1)
+                whitespace_len: int = ThymineInterpreter._get_ws_level(line.split("o")[0])
+                tok: Token = Token(TokenType.BulletPoint, "o", level=whitespace_len + 1)
                 line_toks.append(tok)
                 line = line.replace("o", "", 1)
 
@@ -61,21 +67,34 @@ class ThymineInterpreter:
 
                 if char == ":" and context and context.type == TokenType.MetadataTag:
                     tok.value = tok.value[:-1]
-                    line_toks.append(tok)
+                    if tok.type == TokenType.StringText and tok.value.strip() != "":
+                        line_toks.append(tok)
                     line_toks.append(Token(TokenType.MetadataAssignment, ":"))
                     tok = Token(TokenType.StringText, "")
+                if char == "`":
+                    tok.value = tok.value[:-1]
+                    if tok.type == TokenType.StringText and tok.value.strip() != "":
+                        line_toks.append(tok)
+                    line_toks.append(Token(TokenType.InlineCode, "`"))
+                    tok = Token(TokenType.StringText, "")
+
                 # elif char == "^":
                 #     occur_idxs = [idx for idx, c in enumerate(tok.value) if char == "^"] # Bold Text
                 #     if occur_idxs > 1:
                 #         decorated_text: str = line[idx : occur_idxs[-1] - 1]
                 #         line_toks += ThymineInterpreter.tokenize_decorated_text(decorated_text)
 
-                if idx == len(line)-1 and tok.type == TokenType.StringText:
+                if idx == len(line)-1 and tok.type == TokenType.StringText and tok.value.strip() != "":
                     line_toks.append(tok)
 
-            tokens.append(line_toks)
-
+            if len(line_toks) > 0:
+                tokens.append(line_toks)
         return tokens
 
+    def _get_ws_level(text: str) -> int:
+        """ rank amount of whitespace by \"level\", useful for sub-bulletpoints """
+        return int(ThymineInterpreter._len_tabs_to_spaces(text, 2) / 2)
 
+    def _len_tabs_to_spaces(text: str, tabwidth: int) -> int:
+        return len(text.replace('\t', ' ' * tabwidth))
 
