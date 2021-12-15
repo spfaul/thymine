@@ -7,7 +7,17 @@ Yet another static blog generator, featuring its own custom markdown-inspired la
 > because it's easier.
 
 ## Features
-- [ ] Complete markdown port into thymine language
+- Markdown syntax port into thymine language
+	- [x] Headers
+	- [x] Quote Blocks
+	- [x] Inline Code Blocks
+	- [ ] Multi-line Code Blocks
+	- [x] Unordered Lists
+	- [ ] Ordered Lists
+	- [ ] Links
+	- [ ] Bold, Italics, Strikethrough
+- Thymine-specific syntax
+	- [x] Metadata
 - [ ] Build and deploy system
 - [x] Use CSS to make the websites look decent
 - [x] Template files and configs
