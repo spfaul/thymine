@@ -10,7 +10,8 @@ class TokenType(Enum):
     QuoteBlock = auto(),
     BulletPoint = auto(),
     InlineCode = auto(),
-    LineBreak = auto()
+    LineBreak = auto(),
+    Link = auto()
 
 
 class Token:

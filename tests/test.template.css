@@ -6,8 +6,6 @@ body {
 }
 
 .thymine-container {
-	/*display: flex;*/
-	/*flex-direction: column;*/
 	align-items: left;
 	justify-content:  space-around;
 	margin: 5em;
@@ -45,5 +43,14 @@ text {
 }
 
 h1 {
-	color: #fbf1c7;
+	color: #fbf1c7
+}
+
+a {
+	color: #fabd2f;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
 }

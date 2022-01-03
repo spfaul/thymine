@@ -54,12 +54,11 @@ class ThymineInterpreter:
                 line_toks.append(Token(TokenType.Header, header.group(0)))
                 line = line.replace(header.group(0), "", 1)
 
-
             elif line.strip().startswith("o"): # Bullet points
                 whitespace_len: int = ThymineInterpreter._get_ws_level(line.split("o")[0])
                 tok: Token = Token(TokenType.BulletPoint, "o", level=whitespace_len + 1)
                 line_toks.append(tok)
-                line = line.replace("o", "", 1)
+                line = line.lstrip().replace("o", "", 1)
 
             tok = Token(TokenType.StringText, "")
             for idx, char in enumerate(line):
@@ -67,15 +66,35 @@ class ThymineInterpreter:
 
                 if char == ":" and context and context.type == TokenType.MetadataTag:
                     tok.value = tok.value[:-1]
-                    if tok.type == TokenType.StringText and tok.value.strip() != "":
+                    if tok.type == TokenType.StringText and tok.value.strip():
                         line_toks.append(tok)
                     line_toks.append(Token(TokenType.MetadataAssignment, ":"))
                     tok = Token(TokenType.StringText, "")
-                if char == "`":
+
+                if char == "`" and ((not context and line[idx+1:].count("`") > 0) or (context and context.type == TokenType.InlineCode)):
                     tok.value = tok.value[:-1]
-                    if tok.type == TokenType.StringText and tok.value.strip() != "":
+                    if tok.type == TokenType.StringText and tok.value.strip():
                         line_toks.append(tok)
-                    line_toks.append(Token(TokenType.InlineCode, "`"))
+                    tok = Token(TokenType.InlineCode, "`")
+                    line_toks.append(tok)
+                    if not context:
+                        context = tok
+                    else:
+                        context = None
+                    tok = Token(TokenType.StringText, "")
+
+                if char == "@" and ((not context and line[idx+1:].count("@") > 0) or (context and context.type == TokenType.Link)):
+                    tok.value = tok.value[:-1]
+                    tmp = Token(TokenType.Link, "@")
+                    if tok.type == TokenType.StringText and tok.value.strip():
+                        if context:
+                            context = None
+                            assert tok.value.count(" ") > 0, "Link does not have a title!"
+                            line_toks.extend([Token(TokenType.StringText, val) for val in tok.value.split(" ", 1)])
+                        else:
+                            line_toks.append(tok)
+                            context = tmp
+                    line_toks.append(tmp)
                     tok = Token(TokenType.StringText, "")
 
                 # elif char == "^":

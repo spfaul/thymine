@@ -14,7 +14,7 @@ Yet another static blog generator, featuring its own custom markdown-inspired la
 	- [ ] Multi-line Code Blocks
 	- [x] Unordered Lists
 	- [ ] Ordered Lists
-	- [ ] Links
+	- [x] Links
 	- [ ] Bold, Italics, Strikethrough
 - Thymine-specific syntax
 	- [x] Metadata

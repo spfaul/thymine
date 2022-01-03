@@ -5,11 +5,12 @@ AUTHOR: Person
 # This is some text!
 ## This is some subtext!
 
-This is a des:cription! I love thymine!
-Thymine is pretty cool!
+This is a description! Thymine is pretty cool!
+
 > This is a quoteblock!
 o Bulletpoint 1!
 	o Bulletpoint 2!
   	o Bulletpoint 3!
 
-`hi``asd
+This is some `inline code`?
+This is a @https://duckduckgo.com Link??@

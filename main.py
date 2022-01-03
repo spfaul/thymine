@@ -17,6 +17,5 @@ def main():
     intpr: ThymineInterpreter = ThymineInterpreter()
     intpr.feed_file("tests/test.tym", template.get_output_path(INPUT_PATH), template.get_main_template_path())
 
-
 if __name__ == '__main__':
     main()

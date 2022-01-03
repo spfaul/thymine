@@ -1,9 +1,9 @@
 {
 	"debug": {
-    "name": "debug",
-    "main_template": "tests/test.template.html",
-    "extras": [
-        "tests/test.template.css"
-    ]
-  }
+        "name": "debug",
+        "main_template": "tests/test.template.html",
+        "extras": [
+            "tests/test.template.css"
+        ]
+    }
 }

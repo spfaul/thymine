@@ -20,10 +20,6 @@ class ThymineToHTMLTranspiler:
         for line_num, line in enumerate(self.tokens):
             for idx, tok in enumerate(line):
                 # close bulletpoint ul tags (god no)
-                if bulletpoint_start:
-                    if (not tok.parent and tok.type != TokenType.BulletPoint) or (self._is_last_token(tok) and tok.parent and tok.parent.type == TokenType.BulletPoint):
-                        bulletpoint_start = False
-                        body += "</ul>" * bulletpoint_level
 
                 if tok.type == TokenType.Header:
                     assert idx != len(line) - 1, "Empty Header!"
@@ -53,6 +49,11 @@ class ThymineToHTMLTranspiler:
                         text = text_tok.value
                     body += f"<quote-block>{text}</quote-block>"
 
+                if bulletpoint_start:
+                    if (not tok.parent and tok.type != TokenType.BulletPoint) or (self._is_last_token(tok) and tok.parent and tok.parent.type == TokenType.BulletPoint):
+                        bulletpoint_start = False
+                        body += "</ul>" * bulletpoint_level
+
                 if tok.type == TokenType.BulletPoint:
                     assert idx != len(line) - 1, "Empty BulletPoint!"
                     text_tok = line[idx + 1]
@@ -71,20 +72,19 @@ class ThymineToHTMLTranspiler:
                     body += f"<li>{text_tok.value}</li>"
 
                 if tok.type == TokenType.InlineCode and not tok.parent:
-                    code_text: str = ""
-                    found_closing: bool = False
+                    code_text = ""
 
-                    for tmp_next_tok in line[idx+1:]:
-                        if tmp_next_tok.type == TokenType.InlineCode and not tmp_next_tok.parent:
-                            found_closing = True
+                    for next_tok_idx, next_tok in enumerate(line[idx+1:]):
+                        next_tok.parent = tok
+                        if next_tok.type == TokenType.InlineCode:
+                            break 
+                        code_text += next_tok.value
+                    body += f"<code>{code_text}</code>"
 
-                    if found_closing:
-                        for next_tok_idx, next_tok in enumerate(line[idx+1:]):
-                            next_tok.parent = tok
-                            if next_tok.type == TokenType.InlineCode:
-                                break 
-                            code_text += next_tok.value
-                        body += f"<code>{code_text}</code>"
+                if tok.type == TokenType.Link and not tok.parent:
+                    for i in range(1, 4): # Take ownership of URL, TITLE and closing tag
+                        line[idx + i].parent = tok
+                    body += f"<a href=\"{line[idx+1].value}\">{line[idx+2].value}</a>"
 
                 if tok.type == TokenType.LineBreak:
                     body += f"<br>"
