@@ -1,3 +1,14 @@
+* {
+	box-sizing: border-box;
+}
+
+main {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0rem 3rem 0rem;
+}
+
 body {
 	background-color: #282828;
 	font-family: Ubuntu;
@@ -6,10 +17,23 @@ body {
 }
 
 .article-head {
-	margin: .5em;
-	font-size: 2em;
-	text-align: center;
+	padding: 0rem 3rem 0rem;
+	margin: 3rem 3rem 0rem;
+	width: calc(100% - 3rem * 2);
+	font-size: 2.5rem;
 	font-weight: bold;
+	text-align: center;
+	border-bottom: 1px solid #928374;
+}
+
+.article-info {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	font-weight: normal;
+	font-size: .5rem;
+	padding-left: 2rem;
+	padding-right: 2rem;
 }
 
 .article-author, .article-date {
@@ -17,47 +41,34 @@ body {
 	justify-content: center;
 	align-items: center;
 	font-weight: normal;
-	font-size: 1em;
-	padding-top: .5em;
+	font-size: 1rem;
+	padding-top: .5rem;
 }
-
-.article-info {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	font-weight: normal;
-	font-size: .5em;
-	padding-left: 2em;
-	padding-right: 2em;
-}
-
 
 .thymine-container {
-	justify-content:  space-around;
-	margin-left: 2em;
-	margin-right: 2em;
-	border: 1px solid #928374;
-	border-radius: 10px;
-	padding: 1.5em;
+	display: flex;
+	flex-direction: column;
+	margin: 1rem 3rem 3rem;
+	width: calc(100% - 3rem * 2);
 }
 
 quote-block {
   display: block;
-	margin-top: 1em;
-	margin-bottom: 1em;
-	padding-left: 1em;
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	padding-left: 1rem;
 	color:  #665c54;
-	border-left: 0.25em solid #504945;
+	border-left: 0.25rem solid #504945;
 }
 
 li {
-	margin-top:  .5em;
-	margin-bottom:  .5em;
+	margin-top:  .5rem;
+	margin-bottom:  .5rem;
 }
 
 code {
 	background-color: #3c3836;
-	padding: 0.2em 0.4em;
+	padding: 0.2rem 0.4rem;
 	font-size: 85%;
 	border-radius: 6px;
 }
@@ -68,17 +79,17 @@ ul {
 
 text {
 	display: inline-block;
-	margin-top: .2em;
-	margin-bottom: .2em;
+	margin-top: .2rem;
+	margin-bottom: .2rem;
 }
 
 
 h1, h2, h3,
 h4, h5, h6 {
 	color: #fbf1c7;
-	border-bottom: 1px solid #a89984;
+	/*border-bottom: 1px solid #a89984;*/
 	margin-top: 0;
-	margin-bottom: .8em;
+	margin-bottom: .8rem;
 }
 
 a {

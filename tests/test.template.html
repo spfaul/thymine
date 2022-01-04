@@ -9,25 +9,29 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 <body>
-    <div class="article-head">
-        $THYMINE_META.TITLE
-        <div class="article-info">
-            <div class="article-author">
-                <i class="material-icons" style="padding: .2em">
-                    supervised_user_circle
-                </i>
-                $THYMINE_META.AUTHOR
-            </div>
-            <div class="article-date">
-                <i class="material-icons" style="padding: .2em">
-                    date_range
-                </i>
-                $THYMINE_META.DATE
+    <main>
+        <div class="article-head">
+            $THYMINE_META.TITLE
+            <div class="article-info">
+                <div class="article-author">
+                    <i class="material-icons" style="padding: .2em">
+                        supervised_user_circle
+                    </i>
+                    $THYMINE_META.AUTHOR
+                </div>
+                <div class="article-date">
+                    <i class="material-icons" style="padding: .2em">
+                        date_range
+                    </i>
+                    $THYMINE_META.DATE
+                </div>
             </div>
         </div>
-    </div>
-    <div class="thymine-container">
-        $THYMINE_BODY
-    </div>
+        <div class="thymine-container">
+            <div>
+                $THYMINE_BODY
+            </div>
+        </div>
+    </main>
 </body>
 </html>
