@@ -42,8 +42,10 @@ text {
 	margin-bottom: .2em;
 }
 
-h1 {
-	color: #fbf1c7
+h1, h2, h3,
+h4, h5, h6 {
+	color: #fbf1c7;
+	border-bottom: 1px solid #a89984;
 }
 
 a {
