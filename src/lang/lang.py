@@ -44,17 +44,20 @@ class ThymineInterpreter:
                     context = tmp_tok
                 tokens.append([tmp_tok])
                 continue
-
-            if line.strip().startswith(">") and not context: # Quote Blocks
+            
+            # Quote Blocks
+            if line.strip().startswith(">") and not context: 
                 line_toks.append(Token(TokenType.QuoteBlock, ">"))
                 line = line.replace(">", "", 1)
 
-            header = re.search("#+ ", line)  # Headers
+            # Headers
+            header = re.search("#+ ", line)  
             if header != None and header.start() == 0 and not context:
                 line_toks.append(Token(TokenType.Header, header.group(0)))
                 line = line.replace(header.group(0), "", 1)
 
-            elif line.strip().startswith("o"): # Bullet points
+            # Bullet points
+            elif line.strip().startswith("o"): 
                 whitespace_len: int = ThymineInterpreter._get_ws_level(line.split("o")[0])
                 tok: Token = Token(TokenType.BulletPoint, "o", level=whitespace_len + 1)
                 line_toks.append(tok)
@@ -63,7 +66,7 @@ class ThymineInterpreter:
             tok = Token(TokenType.StringText, "")
             for idx, char in enumerate(line):
                 tok.value += char
-
+                # Metadata Assignments
                 if char == ":" and context and context.type == TokenType.MetadataTag:
                     tok.value = tok.value[:-1]
                     if tok.type == TokenType.StringText and tok.value.strip():
@@ -71,9 +74,10 @@ class ThymineInterpreter:
                     line_toks.append(Token(TokenType.MetadataAssignment, ":"))
                     tok = Token(TokenType.StringText, "")
 
+                # Inline code
                 if char == "`" and ((not context and line[idx+1:].count("`") > 0) or (context and context.type == TokenType.InlineCode)):
                     tok.value = tok.value[:-1]
-                    if tok.type == TokenType.StringText and tok.value.strip():
+                    if tok.type == TokenType.StringText and tok.value:
                         line_toks.append(tok)
                     tok = Token(TokenType.InlineCode, "`")
                     line_toks.append(tok)
@@ -83,17 +87,18 @@ class ThymineInterpreter:
                         context = None
                     tok = Token(TokenType.StringText, "")
 
+                # Links
                 if char == "@" and ((not context and line[idx+1:].count("@") > 0) or (context and context.type == TokenType.Link)):
                     tok.value = tok.value[:-1]
                     tmp = Token(TokenType.Link, "@")
-                    if tok.type == TokenType.StringText and tok.value.strip():
-                        if context:
-                            context = None
-                            assert tok.value.count(" ") > 0, "Link does not have a title!"
-                            line_toks.extend([Token(TokenType.StringText, val) for val in tok.value.split(" ", 1)])
-                        else:
+                    if context:
+                        context = None
+                        assert tok.value.count(" ") > 0, "Link does not have a title!"
+                        line_toks.extend([Token(TokenType.StringText, val) for val in tok.value.split(" ", 1)])
+                    else:
+                        if tok.value:
                             line_toks.append(tok)
-                            context = tmp
+                        context = tmp
                     line_toks.append(tmp)
                     tok = Token(TokenType.StringText, "")
 
@@ -116,4 +121,3 @@ class ThymineInterpreter:
 
     def _len_tabs_to_spaces(text: str, tabwidth: int) -> int:
         return len(text.replace('\t', ' ' * tabwidth))
-

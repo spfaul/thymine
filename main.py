@@ -14,7 +14,7 @@ def main():
     template = Template(possible_templates[TEMPLATE_NAME], BUILD_PATH)
     template.copy_files()
 
-    intpr: ThymineInterpreter = ThymineInterpreter()
+    intpr = ThymineInterpreter()
     intpr.feed_file("tests/test.tym", template.get_output_path(INPUT_PATH), template.get_main_template_path())
 
 if __name__ == '__main__':

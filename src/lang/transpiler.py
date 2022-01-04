@@ -9,7 +9,7 @@ class ThymineToHTMLTranspiler:
     def __init__(self):
         self.tokens: List[List[Token]] = []
 
-    def tokens_to_html(self, tokens: List[List[Token]], template: str) -> str:
+    def tokens_to_html(self, tokens: List[List[Token]], template: str = None) -> str:
         self.tokens = tokens
         body: str = ""
         metadata_loaded: bool = False
@@ -23,12 +23,10 @@ class ThymineToHTMLTranspiler:
 
                 if tok.type == TokenType.Header:
                     assert idx != len(line) - 1, "Empty Header!"
-                    head_text_tok: str = line[idx + 1]
-                    assert head_text_tok.type == TokenType.StringText, "Header has no text token!"
-                    head_text_tok.parent = tok
                     head_level: int = tok.value.count("#")
-
-                    body += f"<h{head_level}>{head_text_tok.value}</h{head_level}>"
+                    body += f"<h{head_level}>{self.tokens_to_html([line[1:]])}</h{head_level}>"
+                    for child_tok in line[idx+1:]:
+                        child_tok.parent = tok
 
                 if tok.type == TokenType.MetadataTag and not metadata_loaded:
                     metadata, metadata_tokens = self._collect_metadata(self.tokens[line_num+1:])
@@ -41,13 +39,9 @@ class ThymineToHTMLTranspiler:
                     body += f"<text>{tok.value}</text>"
 
                 if tok.type == TokenType.QuoteBlock:
-                    if idx == len(line) - 1:
-                        text = ""
-                    else:
-                        text_tok = line[idx + 1]
-                        text_tok.parent = tok
-                        text = text_tok.value
-                    body += f"<quote-block>{text}</quote-block>"
+                    body += f"<quote-block>{self.tokens_to_html([line[idx+1:]])}</quote-block>"
+                    for child_tok in line[idx+1:]:
+                        child_tok.parent = tok
 
                 if bulletpoint_start:
                     if (not tok.parent and tok.type != TokenType.BulletPoint) or (self._is_last_token(tok) and tok.parent and tok.parent.type == TokenType.BulletPoint):
@@ -56,9 +50,6 @@ class ThymineToHTMLTranspiler:
 
                 if tok.type == TokenType.BulletPoint:
                     assert idx != len(line) - 1, "Empty BulletPoint!"
-                    text_tok = line[idx + 1]
-                    assert text_tok.type == TokenType.StringText, "BulletPoint has no text token!"
-                    text_tok.parent = tok
 
                     if not bulletpoint_start:
                         bulletpoint_start = True
@@ -69,11 +60,12 @@ class ThymineToHTMLTranspiler:
                         body += "</ul>" * (bulletpoint_level - tok.level)
                     
                     bulletpoint_level = tok.level
-                    body += f"<li>{text_tok.value}</li>"
+                    body += f"<li>{self.tokens_to_html([line[1:]])}</li>"
+                    for child_tok in line[1:]:
+                        child_tok.parent = tok
 
                 if tok.type == TokenType.InlineCode and not tok.parent:
                     code_text = ""
-
                     for next_tok_idx, next_tok in enumerate(line[idx+1:]):
                         next_tok.parent = tok
                         if next_tok.type == TokenType.InlineCode:
@@ -92,8 +84,12 @@ class ThymineToHTMLTranspiler:
                 if tok.type == TokenType.StringText and tok.parent == None:
                     body += f"<text>{tok.value}</text>"
 
+        if not template:
+            return body
+        
         final_html: str = self._format_template(template, metadata, body)
         return self._prettify_html(final_html)
+
 
     def _is_last_token(self, token: Token):
         return self.tokens[-1][-1] == token
@@ -105,13 +101,6 @@ class ThymineToHTMLTranspiler:
         return template
 
     def _prettify_html(self, text: str):
-        # prettified_text: str = ""
-        # text = cleandoc(text)
-        # for line in text.split("\n"):
-        #     if line.strip() == "":
-        #         continue
-        #     prettified_text += line + "\n"
-        # return prettified_text
         return indent(text, indentation=" "*4, newline="\n", indent_text=False)
 
     def _collect_metadata(self, tokens):
