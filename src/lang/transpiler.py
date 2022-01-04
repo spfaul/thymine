@@ -90,12 +90,11 @@ class ThymineToHTMLTranspiler:
         final_html: str = self._format_template(template, metadata, body)
         return self._prettify_html(final_html)
 
-
     def _is_last_token(self, token: Token):
         return self.tokens[-1][-1] == token
 
     def _format_template(self, template: str, metadata: dict, body: str):
-        template = template.replace("$THYMINE_BODY", body) #TODO: proper indentation
+        template = template.replace("$THYMINE_BODY", body)
         for key, val in metadata.items():
             template = template.replace("$THYMINE_META." + key, val)
         return template
