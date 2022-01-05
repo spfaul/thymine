@@ -3,40 +3,37 @@ from typing import List
 from inspect import cleandoc
 import textwrap
 import itertools
-from yattag import indent
+import pygments
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import Terminal256Formatter, HtmlFormatter
 
 class ThymineToHTMLTranspiler:
     def __init__(self):
         self.tokens: List[List[Token]] = []
 
     def tokens_to_html(self, tokens: List[List[Token]], template: str = None) -> str:
-        self.tokens = tokens
         body: str = ""
         metadata_loaded: bool = False
         metadata: dict[str, str] = {}
         bulletpoint_level: int = 0
         bulletpoint_start: bool = False
 
-        for line_num, line in enumerate(self.tokens):
+        for line_num, line in enumerate(tokens):
             for idx, tok in enumerate(line):
-                # close bulletpoint ul tags (god no)
 
                 if tok.type == TokenType.Header:
                     assert idx != len(line) - 1, "Empty Header!"
                     head_level: int = tok.value.count("#")
+                    print(line[1:])
                     body += f"<h{head_level}>{self.tokens_to_html([line[1:]])}</h{head_level}>"
                     for child_tok in line[idx+1:]:
                         child_tok.parent = tok
 
                 if tok.type == TokenType.MetadataTag and not metadata_loaded:
-                    metadata, metadata_tokens = self._collect_metadata(self.tokens[line_num+1:])
+                    metadata, metadata_tokens = self._collect_metadata(tokens[line_num+1:])
                     metadata_loaded = True
-
                     for md_tok in metadata_tokens:
                         md_tok.parent = tok
-
-                if tok.type == TokenType.MetadataAssignment and tok.parent == None:
-                    body += f"<text>{tok.value}</text>"
 
                 if tok.type == TokenType.QuoteBlock:
                     body += f"<quote-block>{self.tokens_to_html([line[idx+1:]])}</quote-block>"
@@ -44,7 +41,7 @@ class ThymineToHTMLTranspiler:
                         child_tok.parent = tok
 
                 if bulletpoint_start:
-                    if (not tok.parent and tok.type != TokenType.BulletPoint) or (self._is_last_token(tok) and tok.parent and tok.parent.type == TokenType.BulletPoint):
+                    if (not tok.parent and tok.type != TokenType.BulletPoint) or (self._is_last_token(tokens, tok) and tok.parent and tok.parent.type == TokenType.BulletPoint):
                         bulletpoint_start = False
                         body += "</ul>" * bulletpoint_level
 
@@ -73,6 +70,12 @@ class ThymineToHTMLTranspiler:
                         code_text += next_tok.value
                     body += f"<code>{code_text}</code>"
 
+                if tok.type == TokenType.MultiLineCode and not tok.parent:
+                    code_body, code_toks = self._collect_multiline_code(tokens[line_num+1:])
+                    for code_tok in code_toks:
+                        code_tok.parent = tok 
+                    body += f"{code_body}"
+
                 if tok.type == TokenType.Link and not tok.parent:
                     for i in range(1, 4): # Take ownership of URL, TITLE and closing tag
                         line[idx + i].parent = tok
@@ -88,19 +91,46 @@ class ThymineToHTMLTranspiler:
             return body
         
         final_html: str = self._format_template(template, metadata, body)
-        return self._prettify_html(final_html)
+        return final_html
 
-    def _is_last_token(self, token: Token):
-        return self.tokens[-1][-1] == token
+    def _is_last_token(self, tokens, token: Token):
+        return tokens[-1][-1] == token
 
     def _format_template(self, template: str, metadata: dict, body: str):
+        # TODO: Indent and format HTML to make it presentable
         template = template.replace("$THYMINE_BODY", body)
         for key, val in metadata.items():
             template = template.replace("$THYMINE_META." + key, val)
         return template
 
-    def _prettify_html(self, text: str):
-        return indent(text, indentation=" "*4, newline="\n", indent_text=False)
+    def _collect_multiline_code(self, tokens):
+        code_toks = self._filter_multiline_code(tokens)
+        if code_toks == None:
+            return "<text>~</text>", []
+
+        code_body = ""
+        for tok in code_toks:
+            code_body += tok.value
+            if tok.type != TokenType.LineBreak:
+                code_body += "\n"
+
+        lang = "md"
+
+        header_line = code_body.split("\n")[0].lstrip()
+        if header_line.startswith("$"):
+            lang = header_line[1:].strip().lower()
+            code_body = "\n".join(code_body.split("\n")[1:])
+        lexer = get_lexer_by_name(lang)
+        formatter = HtmlFormatter(style="monokai")
+        return pygments.highlight(code_body, lexer=lexer, formatter=formatter), code_toks
+
+    def _filter_multiline_code(self, tokens):
+        code_toks = []
+        for line in tokens:
+            for tok in line:
+                if tok.type == TokenType.MultiLineCode:
+                    return code_toks
+                code_toks.append(tok)
 
     def _collect_metadata(self, tokens):
         md: List[Token] = self._filter_metadata(tokens)

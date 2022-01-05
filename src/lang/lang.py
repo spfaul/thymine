@@ -34,33 +34,46 @@ class ThymineInterpreter:
             # Empty Lines
             if line.strip() == "":
                 tokens.append([Token(TokenType.LineBreak, "\n")])
+                continue
 
             # Find tokens at the start of the line (no iteration needed)
-            if line.strip() == "-":  # Metadata Tags
+            # TODO: set context specifications for each component
+            # Metadata Tags
+            if line.strip() == "-" and (context and context.type == TokenType.MetadataTag or not context):
                 tmp_tok: Token = Token(TokenType.MetadataTag, "-")
-                if context and context.type == TokenType.MetadataTag:
+                tokens.append([tmp_tok])
+                if context:
+                    context = None
+                else:
+                    context = tmp_tok
+                continue
+
+            # Multi-Line Code
+            if line.strip() == "~":
+                tmp_tok = Token(TokenType.MultiLineCode, "~")
+                if context and context.type == TokenType.MultiLineCode:
+                    tmp_tok.parent = context
                     context = None
                 else:
                     context = tmp_tok
                 tokens.append([tmp_tok])
                 continue
-            
-            # Quote Blocks
-            if line.strip().startswith(">") and not context: 
-                line_toks.append(Token(TokenType.QuoteBlock, ">"))
-                line = line.replace(">", "", 1)
 
             # Headers
-            header = re.search("#+ ", line)  
+            header = re.search("#+ ", line)
             if header != None and header.start() == 0 and not context:
                 line_toks.append(Token(TokenType.Header, header.group(0)))
                 line = line.replace(header.group(0), "", 1)
 
+            # Quote Blocks
+            elif line.lstrip().startswith(">") and not context: 
+                line_toks.append(Token(TokenType.QuoteBlock, ">"))
+                line = line.replace(">", "", 1)
+
             # Bullet points
             elif line.lstrip().startswith("o"): 
                 whitespace_len: int = ThymineInterpreter._get_ws_level(line.split("o")[0])
-                tok: Token = Token(TokenType.BulletPoint, "o", level=whitespace_len + 1)
-                line_toks.append(tok)
+                line_toks.append(Token(TokenType.BulletPoint, "o", level=whitespace_len + 1))
                 line = line.lstrip().replace("o", "", 1)
 
             tok = Token(TokenType.StringText, "")
@@ -69,7 +82,7 @@ class ThymineInterpreter:
                 if idx in ignored_char_idxs:
                     continue
 
-                if char == "\\":
+                if char == "\\" and not context:
                     special_chars = [i.value for i in SpecialChars]
                     if idx != len(line) - 1 and line[idx + 1] in special_chars:
                         # treat escaped char as regular char and ignore it on the next iter

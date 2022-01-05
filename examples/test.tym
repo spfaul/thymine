@@ -17,6 +17,17 @@ o Bulletpoint 1!
 
 This is some `inline code`!
 
+~
+$C++
+#include <iostream>
+
+int main()
+{
+	std::cout << "Here's a fancy syntax-highlighted codeblock!\n";
+	return 0;
+}
+~
+
 This is a @https://duckduckgo.com Link??@
 
 \# Using reserved characters is fun!

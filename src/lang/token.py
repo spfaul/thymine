@@ -9,6 +9,7 @@ class TokenType(Enum):
     QuoteBlock = auto(),
     BulletPoint = auto(),
     InlineCode = auto(),
+    MultiLineCode = auto(),
     LineBreak = auto(),
     Link = auto()
 
@@ -20,6 +21,7 @@ class SpecialChars(str, Enum):
     QuoteBlock = ">"
     BulletPoint = "o"
     InlineCode = "`"
+    MultiLineCode = "~"
     Link = "@"
     Escape = "\\"
 
