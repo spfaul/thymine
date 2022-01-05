@@ -1,7 +1,7 @@
 # thymine
 
 Yet another static blog generator, featuring its own custom markdown-inspired language and build system.
-`.tym` Source files are transpiled directly to HTML and can be deployed locally or externaly, because it's literally HTML.
+`.tym` Source files are transpiled directly to HTML and can be deployed locally or externally, because it's literally HTML.
 
 #### Why static?
 > because it's easier.
