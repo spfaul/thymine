@@ -4,8 +4,8 @@ from src.lang import ThymineInterpreter
 from src.template import Template, get_templates
 
 # temporary until we have a proper CLI
-INPUT_PATH = "tests/test.tym"
-BUILD_PATH = "tests/build/"
+INPUT_PATH = "examples/test.tym"
+BUILD_PATH = "examples/build/"
 TEMPLATE_NAME = "debug"
 
 def main():
@@ -15,7 +15,7 @@ def main():
     template.copy_files()
 
     intpr = ThymineInterpreter()
-    intpr.feed_file("tests/test.tym", template.get_output_path(INPUT_PATH), template.get_main_template_path())
+    intpr.feed_file("examples/test.tym", template.get_output_path(INPUT_PATH), template.get_main_template_path())
 
 if __name__ == '__main__':
     main()

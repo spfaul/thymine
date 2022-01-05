@@ -7,7 +7,7 @@ Yet another static blog generator, featuring its own custom markdown-inspired la
 > because it's easier.
 
 ## Features
-- Markdown syntax port into thymine language
+- Thymine-Lang
 	- [x] Headers
 	- [x] Quote Blocks
 	- [x] Inline Code Blocks
@@ -16,11 +16,11 @@ Yet another static blog generator, featuring its own custom markdown-inspired la
 	- [ ] Ordered Lists
 	- [x] Links
 	- [ ] Bold, Italics, Strikethrough
-- Thymine-specific syntax
 	- [x] Metadata
+	- [x] Escape Reserved Characters
+	- [ ] Tables
 - [ ] Build and deploy system
-- [x] Use CSS to make the websites look decent
-- [x] Template files and configs
+- [x] Templates
 - [ ] CLI
 
 ## Quick Start (requires [python 3.8+](https://www.python.org/))

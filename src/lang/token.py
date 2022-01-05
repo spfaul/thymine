@@ -1,6 +1,5 @@
 from enum import Enum, auto
 from typing import Union
-from dataclasses import dataclass
 
 class TokenType(Enum):
     MetadataTag = auto(),
@@ -14,6 +13,16 @@ class TokenType(Enum):
     Link = auto()
 
 
+class SpecialChars(str, Enum):
+    MetadataTag = "-"
+    MetadataAssignment = ":"
+    Header = "#"
+    QuoteBlock = ">"
+    BulletPoint = "o"
+    InlineCode = "`"
+    Link = "@"
+    Escape = "\\"
+
 class Token:
     def __init__(self, token_type, value, parent=None, **kwargs):
         self.type: TokenType = token_type
@@ -25,3 +34,4 @@ class Token:
 
     def __repr__(self):
         return f"<Token type={self.type} value={self.value} parent={self.parent}>"
+

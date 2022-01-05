@@ -1,5 +1,5 @@
 from pprint import pprint
-from .token import Token, TokenType
+from .token import Token, TokenType, SpecialChars
 from .transpiler import ThymineToHTMLTranspiler
 import re
 from typing import *
@@ -57,15 +57,27 @@ class ThymineInterpreter:
                 line = line.replace(header.group(0), "", 1)
 
             # Bullet points
-            elif line.strip().startswith("o"): 
+            elif line.lstrip().startswith("o"): 
                 whitespace_len: int = ThymineInterpreter._get_ws_level(line.split("o")[0])
                 tok: Token = Token(TokenType.BulletPoint, "o", level=whitespace_len + 1)
                 line_toks.append(tok)
                 line = line.lstrip().replace("o", "", 1)
 
             tok = Token(TokenType.StringText, "")
+            ignored_char_idxs = set([])
             for idx, char in enumerate(line):
-                tok.value += char
+                if idx in ignored_char_idxs:
+                    continue
+
+                if char == "\\":
+                    special_chars = [i.value for i in SpecialChars]
+                    if idx != len(line) - 1 and line[idx + 1] in special_chars:
+                        # treat escaped char as regular char and ignore it on the next iter
+                        tok.value += line[idx + 1]
+                        ignored_char_idxs.add(idx+1)
+                else:
+                    tok.value += char
+
                 # Metadata Assignments
                 if char == ":" and context and context.type == TokenType.MetadataTag:
                     tok.value = tok.value[:-1]
