@@ -12,6 +12,9 @@ Actual TL docs: TBD
 Q: Hey, almost every other markup language is using RegEx, why go to the trouble of making a full tokenizer and parser?
 
 A:
+`Thymine` was created to be a project to learn more about markup languages, Lexers, Parsers, etc.
+I do use RegEx for simple things like getting a header's level, however I try not to depend heavily on it.  
+
 > "Some people, when confronted with a problem, think "I know, I'll use regular expressions." Now they have two problems." - Jamie Zawinski, 1997
 
 Good luck on making sense of my spaghetti code regardless.
