@@ -11,7 +11,7 @@ Yet another static blog generator, featuring its own custom markdown-inspired la
 	- [x] Headers
 	- [x] Quote Blocks
 	- [x] Inline Code Blocks
-	- [ ] Multi-line Code Blocks
+	- [x] Multi-line Syntax-Highlighted Code Blocks
 	- [x] Unordered Lists
 	- [ ] Ordered Lists
 	- [x] Links
