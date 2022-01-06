@@ -97,10 +97,10 @@ class ThymineToHTMLTranspiler:
         return tokens[-1][-1] == token
 
     def _format_template(self, template: str, metadata: dict, body: str):
-        # TODO: Indent and format HTML to make it presentable
-        template = template.replace("$THYMINE_BODY", body)
+        # TODO: Indent and format HTML so it's presentable
         for key, val in metadata.items():
             template = template.replace("$THYMINE_META." + key, val)
+        template = template.replace("$THYMINE_BODY", body)
         return template
 
     def _collect_multiline_code(self, tokens):
