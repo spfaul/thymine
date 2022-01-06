@@ -1,2 +1,2 @@
-from .lang import ThymineInterpreter
+from .lang import ThymineTranspiler
 from .token import Token, TokenType

@@ -7,7 +7,7 @@ import pygments
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import Terminal256Formatter, HtmlFormatter
 
-class ThymineToHTMLTranspiler:
+class ThymineParser:
     def __init__(self):
         self.tokens: List[List[Token]] = []
 

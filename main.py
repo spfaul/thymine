@@ -1,6 +1,6 @@
 import os
 from pprint import pprint
-from src.lang import ThymineInterpreter
+from src.lang import ThymineTranspiler
 from src.template import Template, get_templates
 
 # temporary until we have a proper CLI
@@ -14,8 +14,8 @@ def main():
     template = Template(possible_templates[TEMPLATE_NAME], BUILD_PATH)
     template.copy_files()
 
-    intpr = ThymineInterpreter()
-    intpr.feed_file("examples/test.tym", template.get_output_path(INPUT_PATH), template.get_main_template_path())
+    tpiler = ThymineTranspiler()
+    tpiler.feed_file("examples/test.tym", template.get_output_path(INPUT_PATH), template.get_main_template_path())
 
 if __name__ == '__main__':
     main()
