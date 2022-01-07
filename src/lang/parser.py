@@ -21,7 +21,7 @@ class ThymineParser:
         for line_num, line in enumerate(tokens):
             for idx, tok in enumerate(line):
 
-                if tok.type == TokenType.Header:
+                if tok.type == TokenType.HEADER:
                     assert idx != len(line) - 1, "Empty Header!"
                     head_level: int = tok.value.count("#")
                     print(line[1:])
@@ -29,23 +29,24 @@ class ThymineParser:
                     for child_tok in line[idx+1:]:
                         child_tok.parent = tok
 
-                if tok.type == TokenType.MetadataTag and not metadata_loaded:
+                if tok.type == TokenType.METADATA_TAG and not metadata_loaded:
                     metadata, metadata_tokens = self._collect_metadata(tokens[line_num+1:])
                     metadata_loaded = True
                     for md_tok in metadata_tokens:
                         md_tok.parent = tok
 
-                if tok.type == TokenType.QuoteBlock:
+                if tok.type == TokenType.QUOTE_BLOCK:
                     body += f"<quote-block>{self.tokens_to_html([line[idx+1:]])}</quote-block>"
                     for child_tok in line[idx+1:]:
                         child_tok.parent = tok
 
+                # TODO: fix this or something
                 if bulletpoint_start:
-                    if (not tok.parent and tok.type != TokenType.BulletPoint) or (self._is_last_token(tokens, tok) and tok.parent and tok.parent.type == TokenType.BulletPoint):
+                    if (not tok.parent and tok.type != TokenType.BULLETPOINT) or (self._is_last_token(tokens, tok) and tok.parent and tok.parent.type == TokenType.BULLETPOINT):
                         bulletpoint_start = False
                         body += "</ul>" * bulletpoint_level
 
-                if tok.type == TokenType.BulletPoint:
+                if tok.type == TokenType.BULLETPOINT:
                     assert idx != len(line) - 1, "Empty BulletPoint!"
 
                     if not bulletpoint_start:
@@ -61,30 +62,30 @@ class ThymineParser:
                     for child_tok in line[1:]:
                         child_tok.parent = tok
 
-                if tok.type == TokenType.InlineCode and not tok.parent:
+                if tok.type == TokenType.INLINE_CODE and not tok.parent:
                     code_text = ""
                     for next_tok_idx, next_tok in enumerate(line[idx+1:]):
                         next_tok.parent = tok
-                        if next_tok.type == TokenType.InlineCode:
+                        if next_tok.type == TokenType.INLINE_CODE:
                             break 
                         code_text += next_tok.value
                     body += f"<code>{code_text}</code>"
 
-                if tok.type == TokenType.MultiLineCode and not tok.parent:
+                if tok.type == TokenType.MULTILINE_CODE and not tok.parent:
                     code_body, code_toks = self._collect_multiline_code(tokens[line_num+1:])
                     for code_tok in code_toks:
                         code_tok.parent = tok 
                     body += f"{code_body}"
 
-                if tok.type == TokenType.Link and not tok.parent:
+                if tok.type == TokenType.LINK and not tok.parent:
                     for i in range(1, 4): # Take ownership of URL, TITLE and closing tag
                         line[idx + i].parent = tok
                     body += f"<a href=\"{line[idx+1].value}\">{line[idx+2].value}</a>"
 
-                if tok.type == TokenType.LineBreak:
+                if tok.type == TokenType.LINE_BREAK:
                     body += f"<br>"
 
-                if tok.type == TokenType.StringText and tok.parent == None:
+                if tok.type == TokenType.STRING_TEXT and tok.parent == None:
                     body += f"<text>{tok.value}</text>"
 
         if not template:
@@ -111,7 +112,7 @@ class ThymineParser:
         code_body = ""
         for tok in code_toks:
             code_body += tok.value
-            if tok.type != TokenType.LineBreak:
+            if tok.type != TokenType.LINE_BREAK:
                 code_body += "\n"
 
         lang = "md"
@@ -128,7 +129,7 @@ class ThymineParser:
         code_toks = []
         for line in tokens:
             for tok in line:
-                if tok.type == TokenType.MultiLineCode:
+                if tok.type == TokenType.MULTILINE_CODE:
                     return code_toks
                 code_toks.append(tok)
 
@@ -139,10 +140,10 @@ class ThymineParser:
         md_dict: dict[str, str] = {}
 
         for idx, tok in enumerate(md):
-            if tok.type == TokenType.MetadataAssignment:
+            if tok.type == TokenType.METADATA_ASSIGNMENT:
                 assert idx != 0 and idx != len(md) - 1, "Invalid metadata assignment syntax with \":\""
                 key, val = md[idx-1], md[idx+1]
-                assert key.type == TokenType.StringText and val.type == TokenType.StringText, "Metadata assignment only accepts strings"
+                assert key.type == TokenType.STRING_TEXT and val.type == TokenType.STRING_TEXT, "Metadata assignment only accepts strings"
                 md_dict[key.value.strip()] = val.value.strip()
 
         return md_dict, md
@@ -152,6 +153,6 @@ class ThymineParser:
 
         for line in tokens:
             for tok in line:
-                if tok.type == TokenType.MetadataTag:
+                if tok.type == TokenType.METADATA_TAG:
                     return metadata
                 metadata.append(tok)

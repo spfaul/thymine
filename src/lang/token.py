@@ -1,29 +1,35 @@
 from enum import Enum, auto
 from typing import Union
 
-class TokenType(Enum):
-    MetadataTag = auto(),
-    MetadataAssignment = auto(),
-    StringText = auto(),
-    Header = auto(),
-    QuoteBlock = auto(),
-    BulletPoint = auto(),
-    InlineCode = auto(),
-    MultiLineCode = auto(),
-    LineBreak = auto(),
-    Link = auto()
+# class TokenType(Enum):
+#     MetadataTag = auto(),
+#     MetadataAssignment = auto(),
+#     StringText = auto(),
+#     Header = auto(),
+#     QuoteBlock = auto(),
+#     BulletPoint = auto(),
+#     InlineCode = auto(),
+#     MultiLineCode = auto(),
+#     LineBreak = auto(),
+#     Link = auto(),
 
 
-class SpecialChars(str, Enum):
-    MetadataTag = "-"
-    MetadataAssignment = ":"
-    Header = "#"
-    QuoteBlock = ">"
-    BulletPoint = "o"
-    InlineCode = "`"
-    MultiLineCode = "~"
-    Link = "@"
-    Escape = "\\"
+
+class TokenType(str, Enum):
+    METADATA_TAG = "-"
+    METADATA_ASSIGNMENT = ":"
+    STRING_TEXT = "STRING_TEXT"
+    LINE_BREAK = "\n"
+    HEADER = "#"
+    QUOTE_BLOCK = ">"
+    BULLETPOINT = "o"
+    INLINE_CODE = "`"
+    MULTILINE_CODE = "~"
+    LINK = "@"
+    ESCAPE = "\\"
+
+    def values():
+        return [i.value for i in TokenType]
 
 class Token:
     def __init__(self, token_type, value, parent=None, **kwargs):

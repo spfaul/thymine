@@ -1,11 +1,14 @@
-from .token import Token, TokenType, SpecialChars
+from .token import Token, TokenType
 from .parser import ThymineParser
 import re
 from typing import *
 
 
 class ThymineLexer:
-    # TODO: Make use of class members
+    HTML_ESCAPES = {
+        "<": "&lt;",
+        ">": "&gt;"
+    }
 
     def tokenize(self, text: str):
         tokens: list[list[Token]] = []
@@ -16,14 +19,14 @@ class ThymineLexer:
 
             # Empty Lines
             if line.strip() == "":
-                tokens.append([Token(TokenType.LineBreak, "\n")])
+                tokens.append([Token(TokenType.LINE_BREAK, "\n")])
                 continue
 
             # Find tokens at the start of the line (no iteration needed)
             # TODO: set context specifications for each component
             # Metadata Tags
-            if line.strip() == "-" and (context and context.type == TokenType.MetadataTag or not context):
-                tmp_tok: Token = Token(TokenType.MetadataTag, "-")
+            if line.strip() == "-" and (context and context.type == TokenType.METADATA_TAG or not context):
+                tmp_tok: Token = Token(TokenType.METADATA_TAG, "-")
                 tokens.append([tmp_tok])
                 if context:
                     context = None
@@ -33,8 +36,8 @@ class ThymineLexer:
 
             # Multi-Line Code
             if line.strip() == "~":
-                tmp_tok = Token(TokenType.MultiLineCode, "~")
-                if context and context.type == TokenType.MultiLineCode:
+                tmp_tok = Token(TokenType.MULTILINE_CODE, "~")
+                if context and context.type == TokenType.MULTILINE_CODE:
                     tmp_tok.parent = context
                     context = None
                 else:
@@ -45,78 +48,77 @@ class ThymineLexer:
             # Headers
             header = re.search("#+ ", line)
             if header != None and header.start() == 0 and not context:
-                line_toks.append(Token(TokenType.Header, header.group(0)))
+                line_toks.append(Token(TokenType.HEADER, header.group(0)))
                 line = line.replace(header.group(0), "", 1)
 
             # Quote Blocks
             elif line.lstrip().startswith(">") and not context: 
-                line_toks.append(Token(TokenType.QuoteBlock, ">"))
+                line_toks.append(Token(TokenType.QUOTE_BLOCK, ">"))
                 line = line.replace(">", "", 1)
 
             # Bullet points
             elif line.lstrip().startswith("o"): 
                 whitespace_len: int = self._get_ws_level(line.split("o")[0])
-                line_toks.append(Token(TokenType.BulletPoint, "o", level=whitespace_len + 1))
+                line_toks.append(Token(TokenType.BULLETPOINT, "o", level=whitespace_len + 1))
                 line = line.lstrip().replace("o", "", 1)
 
-            tok = Token(TokenType.StringText, "")
+            tok = Token(TokenType.STRING_TEXT, "")
             ignored_char_idxs = set([])
             for idx, char in enumerate(line):
                 if idx in ignored_char_idxs:
+                    # Add String Text at end of line if last character is escaped
+                    if idx == len(line)-1 and tok.type == TokenType.STRING_TEXT and tok.value.strip() != "":
+                        line_toks.append(tok)
                     continue
 
-                if char == "\\" and not context:
-                    special_chars = [i.value for i in SpecialChars]
-                    if idx != len(line) - 1 and line[idx + 1] in special_chars:
-                        # treat escaped char as regular char and ignore it on the next iter
+                if char == "\\" and not context and idx != len(line) - 1:
+                    if line[idx + 1] in self.HTML_ESCAPES.keys():
+                        tok.value += self.HTML_ESCAPES[line[idx + 1]]
+                        ignored_char_idxs.add(idx+1)
+                    elif line[idx + 1] in TokenType.values():
                         tok.value += line[idx + 1]
                         ignored_char_idxs.add(idx+1)
                 else:
                     tok.value += char
 
                 # Metadata Assignments
-                if char == ":" and context and context.type == TokenType.MetadataTag:
+                if char == ":" and context and context.type == TokenType.METADATA_TAG:
                     tok.value = tok.value[:-1]
-                    if tok.type == TokenType.StringText and tok.value.strip():
+                    if tok.type == TokenType.STRING_TEXT and tok.value.strip():
                         line_toks.append(tok)
-                    line_toks.append(Token(TokenType.MetadataAssignment, ":"))
-                    tok = Token(TokenType.StringText, "")
+                    line_toks.append(Token(TokenType.METADATA_ASSIGNMENT, ":"))
+                    tok = Token(TokenType.STRING_TEXT, "")
 
                 # Inline code
-                if char == "`" and ((not context and line[idx+1:].count("`") > 0) or (context and context.type == TokenType.InlineCode)):
+                if char == "`" and ((not context and line[idx+1:].count("`") > 0) or (context and context.type == TokenType.INLINE_CODE)):
                     tok.value = tok.value[:-1]
-                    if tok.type == TokenType.StringText and tok.value:
+                    if tok.type == TokenType.STRING_TEXT and tok.value:
                         line_toks.append(tok)
-                    tok = Token(TokenType.InlineCode, "`")
+                    tok = Token(TokenType.INLINE_CODE, "`")
                     line_toks.append(tok)
                     if not context:
                         context = tok
                     else:
                         context = None
-                    tok = Token(TokenType.StringText, "")
+                    tok = Token(TokenType.STRING_TEXT, "")
 
                 # Links
-                if char == "@" and ((not context and line[idx+1:].count("@") > 0) or (context and context.type == TokenType.Link)):
+                if char == "@" and ((not context and line[idx+1:].count("@") > 0) or (context and context.type == TokenType.LINK)):
                     tok.value = tok.value[:-1]
-                    tmp = Token(TokenType.Link, "@")
+                    tmp = Token(TokenType.LINK, "@")
                     if context:
                         context = None
                         assert tok.value.count(" ") > 0, "Link does not have a title!"
-                        line_toks.extend([Token(TokenType.StringText, val) for val in tok.value.split(" ", 1)])
+                        line_toks.extend([Token(TokenType.STRING_TEXT, val) for val in tok.value.split(" ", 1)])
                     else:
                         if tok.value:
                             line_toks.append(tok)
                         context = tmp
                     line_toks.append(tmp)
-                    tok = Token(TokenType.StringText, "")
+                    tok = Token(TokenType.STRING_TEXT, "")
 
-                # elif char == "^":
-                #     occur_idxs = [idx for idx, c in enumerate(tok.value) if char == "^"] # Bold Text
-                #     if occur_idxs > 1:
-                #         decorated_text: str = line[idx : occur_idxs[-1] - 1]
-                #         line_toks += self.tokenize_decorated_text(decorated_text)
-
-                if idx == len(line)-1 and tok.type == TokenType.StringText and tok.value.strip() != "":
+                # String Text at end of line
+                if idx == len(line)-1 and tok.type == TokenType.STRING_TEXT and tok.value.strip() != "":
                     line_toks.append(tok)
 
             if len(line_toks) > 0:
