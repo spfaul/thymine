@@ -15,7 +15,7 @@ def main():
     template.copy_files()
 
     tpiler = ThymineTranspiler()
-    tpiler.feed_file("examples/test.tym", template.get_output_path(INPUT_PATH), template.get_main_template_path())
+    tpiler.feed_file(INPUT_PATH, template.get_output_path(INPUT_PATH), template.get_main_template_path())
 
 if __name__ == '__main__':
     main()
