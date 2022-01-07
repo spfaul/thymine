@@ -82,6 +82,11 @@ class ThymineParser:
                         line[idx + i].parent = tok
                     body += f"<a href=\"{line[idx+1].value}\">{line[idx+2].value}</a>"
 
+                if tok.type == TokenType.IMAGE and not tok.parent:
+                    for i in range(1, 4): # Take ownership of URL and Alt-text
+                        line[idx + i].parent = tok
+                    body += f"<img src=\"{line[idx + 1].value}\" alt=\"{line[idx + 2].value}\"></img>"                  
+
                 if tok.type == TokenType.LINE_BREAK:
                     body += f"<br>"
 

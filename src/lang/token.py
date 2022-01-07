@@ -26,6 +26,7 @@ class TokenType(str, Enum):
     INLINE_CODE = "`"
     MULTILINE_CODE = "~"
     LINK = "@"
+    IMAGE = "^"
     ESCAPE = "\\"
 
     def values():

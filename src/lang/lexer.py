@@ -117,6 +117,21 @@ class ThymineLexer:
                     line_toks.append(tmp)
                     tok = Token(TokenType.STRING_TEXT, "")
 
+                # Images
+                if char == "^" and ((not context and line[idx+1:].count("^") > 0) or (context and context.type == TokenType.IMAGE)):
+                    tok.value = tok.value[:-1]
+                    tmp = Token(TokenType.IMAGE, "@")
+                    if context:
+                        context = None
+                        assert tok.value.count(" ") > 0, "Image does not have alt-text!"
+                        line_toks.extend([Token(TokenType.STRING_TEXT, val) for val in tok.value.split(" ", 1)])
+                    else:
+                        if tok.value:
+                            line_toks.append(tok)
+                        context = tmp
+                    line_toks.append(tmp)
+                    tok = Token(TokenType.STRING_TEXT, "")
+
                 # String Text at end of line
                 if idx == len(line)-1 and tok.type == TokenType.STRING_TEXT and tok.value.strip() != "":
                     line_toks.append(tok)
