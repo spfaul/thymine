@@ -19,8 +19,7 @@ def cli():
     parser.add_argument("-t", dest='TEMPLATE_NAME', metavar="TEMPLATE_NAME",
                         type=str, default="debug",
                         help="Name of template to use when building.")
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 def main(args):
     possible_templates = get_templates(os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates.json"))
@@ -30,7 +29,7 @@ def main(args):
 
     tpiler = ThymineTranspiler()
     tpiler.feed_file(args.SOURCE_PATH, template.get_output_path(args.SOURCE_PATH), template.get_main_template_path())
-    
+
     template.copy_files()
 
 if __name__ == '__main__':

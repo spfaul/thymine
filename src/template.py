@@ -23,6 +23,9 @@ class Template:
             pass
 
     def copy_files(self):
+        if "extras" not in self.config.keys():
+            return
+
         for file_path in self.config["extras"]:
             _, file_name = os.path.split(file_path)
             shutil.copy(file_path, os.path.join(self.out_path, file_name))
