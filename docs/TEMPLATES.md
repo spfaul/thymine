@@ -97,6 +97,4 @@ All set! To compile on Linux/MacOS, run `python3 main.py hello.tym build/ -t Hel
 
 We can view our final generated HTML file at `build/hello.html`.
 
-![hello.html in browser](TBD)
-
-
+![hello.html in browser](https://raw.githubusercontent.com/t0a5ted/thymine/master/docs/assets/template-out-0.png)
