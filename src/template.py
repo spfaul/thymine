@@ -15,13 +15,14 @@ class Template:
         filename_no_ext: str = Path(file_path).stem
         return os.path.join(self.out_path, filename_no_ext + ".html")    
 
-    def copy_files(self):
+    def create_build_folder(self):
         try:
             os.makedirs(self.out_path)
         except FileExistsError:
             # directory already exists
             pass
 
+    def copy_files(self):
         for file_path in self.config["extras"]:
             _, file_name = os.path.split(file_path)
             shutil.copy(file_path, os.path.join(self.out_path, file_name))
