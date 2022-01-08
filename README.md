@@ -22,7 +22,7 @@ Yet another static blog generator, featuring its own custom markdown-inspired la
 	- [x] Images
 - [ ] Build and deploy system
 - [x] Templates
-- [ ] CLI
+- [x] CLI
 
 ## Quick Start (requires [python 3.8+](https://www.python.org/))
 > Thymine doesn't even have a working alpha yet...
