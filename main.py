@@ -4,12 +4,6 @@ from src.lang import ThymineTranspiler
 from src.template import Template, get_templates
 import argparse
 
-
-# temporary until we have a proper CLI
-INPUT_PATH = "examples/test.tym"
-BUILD_PATH = "examples/build/"
-TEMPLATE_NAME = "debug"
-
 def cli():
     parser = argparse.ArgumentParser(description="The Official Thymine Compiler.")
     parser.add_argument("SOURCE_PATH", metavar="SOURCE_PATH", type=str,
