@@ -19,6 +19,7 @@ Yet another static blog generator, featuring its own custom markdown-inspired la
 	- [x] Metadata
 	- [x] Escape Reserved Characters
 	- [ ] Tables
+	- [x] Images
 - [ ] Build and deploy system
 - [x] Templates
 - [ ] CLI
