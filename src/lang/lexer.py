@@ -26,10 +26,11 @@ class ThymineLexer:
             # Find tokens at the start of the line (no iteration needed)
             # TODO: set context specifications for each component
             # Metadata Tags
-            if line.strip() == "-" and (context and context.type == TokenType.METADATA_TAG or not context) and "-" in [line.strip() for line in lines[line_num+1:]]:
+            if line.strip() == "-" and (context and context.type == TokenType.METADATA_TAG or not context and "-" in [line.strip() for line in lines[line_num+1:]]):
                 tmp_tok: Token = Token(TokenType.METADATA_TAG, "-")
                 tokens.append([tmp_tok])
                 if context:
+                    tmp_tok.parent = context
                     context = None
                 else:
                     context = tmp_tok

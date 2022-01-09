@@ -8,19 +8,14 @@ from pygments.lexers import get_lexer_by_name
 from pygments.formatters import Terminal256Formatter, HtmlFormatter
 
 class ThymineParser:
-    def __init__(self):
-        self.tokens: List[List[Token]] = []
-
     def tokens_to_html(self, tokens: List[List[Token]], template: str = None) -> str:
         body: str = ""
-        metadata_loaded: bool = False
         metadata: dict[str, str] = {}
         bulletpoint_level: int = 0
         bulletpoint_start: bool = False
 
         for line_num, line in enumerate(tokens):
             for idx, tok in enumerate(line):
-
                 if tok.type == TokenType.HEADER:
                     assert idx != len(line) - 1, "Empty Header!"
                     head_level: int = tok.value.count("#")
@@ -28,9 +23,9 @@ class ThymineParser:
                     for child_tok in line[idx+1:]:
                         child_tok.parent = tok
 
-                if tok.type == TokenType.METADATA_TAG and not metadata_loaded:
-                    metadata, metadata_tokens = self._collect_metadata(tokens[line_num+1:])
-                    metadata_loaded = True
+                if tok.type == TokenType.METADATA_TAG and not tok.parent:
+                    metadata_chunk, metadata_tokens = self._collect_metadata(tokens[line_num+1:])
+                    metadata.update(metadata_chunk)
                     for md_tok in metadata_tokens:
                         md_tok.parent = tok
 
