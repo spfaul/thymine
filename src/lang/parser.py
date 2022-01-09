@@ -24,7 +24,6 @@ class ThymineParser:
                 if tok.type == TokenType.HEADER:
                     assert idx != len(line) - 1, "Empty Header!"
                     head_level: int = tok.value.count("#")
-                    print(line[1:])
                     body += f"<h{head_level}>{self.tokens_to_html([line[1:]])}</h{head_level}>"
                     for child_tok in line[idx+1:]:
                         child_tok.parent = tok
@@ -121,7 +120,6 @@ class ThymineParser:
                 code_body += "\n"
 
         lang = "md"
-
         header_line = code_body.split("\n")[0].lstrip()
         if header_line.startswith("$"):
             lang = header_line[1:].strip().lower()
@@ -140,9 +138,9 @@ class ThymineParser:
 
     def _collect_metadata(self, tokens):
         md: List[Token] = self._filter_metadata(tokens)
-        assert md != None, "No closing metadata tag found!"
-
         md_dict: dict[str, str] = {}
+
+        assert md != None, "Metadata Tag Not Closed!"
 
         for idx, tok in enumerate(md):
             if tok.type == TokenType.METADATA_ASSIGNMENT:

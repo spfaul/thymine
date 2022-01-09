@@ -14,7 +14,8 @@ class ThymineLexer:
         tokens: list[list[Token]] = []
         context: Union[Token, None] = None
 
-        for line in text.split("\n"):
+        lines = text.split("\n")
+        for line_num, line in enumerate(lines):
             line_toks: list[Token] = []
 
             # Empty Lines
@@ -25,7 +26,7 @@ class ThymineLexer:
             # Find tokens at the start of the line (no iteration needed)
             # TODO: set context specifications for each component
             # Metadata Tags
-            if line.strip() == "-" and (context and context.type == TokenType.METADATA_TAG or not context):
+            if line.strip() == "-" and (context and context.type == TokenType.METADATA_TAG or not context) and "-" in [line.strip() for line in lines[line_num+1:]]:
                 tmp_tok: Token = Token(TokenType.METADATA_TAG, "-")
                 tokens.append([tmp_tok])
                 if context:
