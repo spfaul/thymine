@@ -30,6 +30,8 @@ int main()
 
 This is a @https://duckduckgo.com Link??@
 
-\# Using reserved characters is fun!
+\# Escaping reserved characters is fun!
+
+Abuse HTML Tags to create <i><b>EMPHASIS!</b></i>
 
 ^https://www.pngarts.com/files/3/Cat-Transparent-Images-1.png cute cat!^

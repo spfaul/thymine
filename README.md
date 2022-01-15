@@ -24,7 +24,7 @@ Yet another static blog generator, featuring its own custom markdown-inspired la
 - [x] Templates
 - [x] CLI
 
-## Quick Start (requires [python 3.8+](https://www.python.org/))
+## Quick Start ([Python 3.8+](https://www.python.org/))
 > Thymine doesn't even have a working alpha yet...
 > so don't have high hopes.
 ```bash
